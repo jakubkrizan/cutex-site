@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cutex - Your account</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--card:#0d0d0f;--card2:#151518;--line:#24242a;--text:#f1f2f5;--mut:#9aa0ad;--red:#d6402a;--red2:#ec5638;--amber:#f2a23a;--ok:#7ee2a8;--bad:#ff9a9e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Roboto,system-ui,sans-serif;
+ background-image:radial-gradient(900px 500px at 75% -10%,rgba(214,64,42,.14),transparent 60%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg stroke='%23d6402a' stroke-width='2.5' stroke-linecap='round' opacity='.3'%3E%3Cpath d='M10 10l10 10M20 10l-10 10'/%3E%3Cpath d='M52 52l10 10M62 52l-10 10'/%3E%3C/g%3E%3C/svg%3E");
+ background-size:auto,84px 84px}
+a{color:var(--red2)}
+header{display:flex;align-items:center;gap:20px;height:64px;padding:0 20px;background:rgba(0,0,0,.86);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:9px;font:700 20px Roboto;white-space:nowrap;text-decoration:none;color:var(--text)}.logo b{color:var(--red2)}
+.wrap{max-width:420px;margin:60px auto;padding:0 20px}
+h1{font-size:28px;margin:0 0 6px}h1 em{font-style:normal;color:var(--red2)}
+.sub{color:var(--mut);margin:0 0 24px}
+.box{background:linear-gradient(180deg,var(--card),#09090b);border:1px solid var(--line);border-radius:16px;padding:24px}
+.tabs{display:flex;gap:6px;margin-bottom:18px}
+.tabs button{flex:1;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--text);font:600 13px Roboto;cursor:pointer}
+.tabs button.on{background:var(--red);border-color:var(--red)}
+input{width:100%;background:#0e0f13;color:var(--text);border:1px solid #323743;border-radius:8px;padding:11px 12px;font:inherit;margin-bottom:10px}
+input:focus{outline:none;border-color:var(--red2);box-shadow:0 0 0 3px rgba(214,64,42,.18)}
+button.go{width:100%;padding:12px;border-radius:8px;border:1px solid var(--red);background:var(--red);color:#fff;font:700 14px Roboto;cursor:pointer}
+button.go:hover{background:var(--red2)}
+#msg{min-height:20px;margin-top:10px;font-size:13.5px}
+.hint{color:var(--mut);font-size:12.5px;margin-top:16px;text-align:center}
+.st{display:inline-flex;gap:8px;align-items:center;font-weight:700;border-radius:99px;padding:5px 14px;font-size:13px;margin-bottom:10px}
+.st.ok{background:#173d2a;color:var(--ok)}.st.bad{background:#3d1a1c;color:var(--bad)}
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html"><svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0b0b0d"/><circle cx="32" cy="32" r="22" fill="#14070a" stroke="#d6402a" stroke-width="2.5"/><path d="M23.5 23.5L40.5 40.5M40.5 23.5L23.5 40.5" stroke="#ec5638" stroke-width="6" stroke-linecap="round"/></svg><span>Cut<b>ex</b></span></a></header>
+<div class="wrap">
+ <h1>Your <em>account</em></h1>
+ <p class="sub">The same account works here and in the Cutex app - sign up once, free for 7 days.</p>
+ <div class="box" id="box">loading...</div>
+ <p class="hint">Your password is hashed on our server and never stored in the clear.</p>
+</div>
+<script>
+// Fill this in once you've deployed backend/worker.js (see backend/README.md), e.g.:
+// const API = "https://cutex-accounts.yourname.workers.dev";
+const API = "";
+const $=id=>document.getElementById(id);
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+let mode="signup";
+function setMode(m){mode=m;render()}
+function tok(){return localStorage.getItem("cutex_token")||""}
+function setTok(t,email){try{localStorage.setItem("cutex_token",t);localStorage.setItem("cutex_email",email)}catch(e){}}
+function clearTok(){try{localStorage.removeItem("cutex_token");localStorage.removeItem("cutex_email")}catch(e){}}
+async function render(){
+ if(!API){$("box").innerHTML='<span class="st bad">Accounts aren\'t deployed yet</span><p class="hint" style="margin-top:6px">Set API in account.html once backend/worker.js is deployed - see backend/README.md.</p>';return}
+ const t=tok();
+ if(t){
+  const d=await j(API+"/me",{headers:{Authorization:"Bearer "+t}}).catch(()=>({ok:false}));
+  if(d.ok){
+   const T={trial:["ok","🎁 Free trial"],active:["ok","✓ Subscribed"],trial_over:["bad","✕ Trial ended"],expired:["bad","✕ Subscription ended"]}[d.state]||["ok",d.state];
+   $("box").innerHTML=`<span class="st ${T[0]}">${T[1]}</span><p class="sub" style="margin:0 0 14px">${esc(d.email)}${d.days_left!=null?` · ${d.days_left} day${d.days_left==1?"":"s"} left`:""}</p>
+    <button class="go" onclick="logout()">Log out</button>
+    <p class="hint">Download Cutex and sign in with this same e-mail and password in the app.</p>`;
+   return}
+  clearTok()}
+ $("box").innerHTML=`<div class="tabs"><button class="${mode==="login"?"on":""}" onclick="setMode('login')">Log in</button><button class="${mode==="signup"?"on":""}" onclick="setMode('signup')">Sign up</button></div>
+  <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+  <input id="pw" type="password" placeholder="password (min. 8 characters)" autocomplete="${mode==="login"?"current-password":"new-password"}">
+  <button class="go" onclick="${mode==="login"?"doLogin()":"doSignup()"}">${mode==="login"?"Log in":"Create free account"}</button>
+  <div id="msg"></div>`}
+async function doSignup(){const m=$("msg");m.textContent="creating account...";
+ const d=await j(API+"/signup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("email").value,password:$("pw").value})});
+ if(d.ok){setTok(d.token,d.email);render()}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
+async function doLogin(){const m=$("msg");m.textContent="signing in...";
+ const d=await j(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("email").value,password:$("pw").value})});
+ if(d.ok){setTok(d.token,d.email);render()}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
+function logout(){clearTok();render()}
+render();
+</script>
+</body></html>
