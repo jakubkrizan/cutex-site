@@ -45,6 +45,8 @@ button.go:hover{background:var(--red2)}
 // Fill this in once you've deployed backend/worker.js (see backend/README.md), e.g.:
 // const API = "https://cutex-accounts.yourname.workers.dev";
 const API = "https://cutex-accounts.cutexorg.workers.dev";
+const APP_VERSION = "1.0.0";
+const DOWNLOAD_URL = "https://github.com/jakubkrizan/cutex-site/releases/download/v1.0.0/Cutex-Setup-1.0.0.exe";
 const $=id=>document.getElementById(id);
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 async function j(u,o){const r=await fetch(u,o);return r.json()}
@@ -61,8 +63,9 @@ async function render(){
   if(d.ok){
    const T={trial:["ok","🎁 Free trial"],active:["ok","✓ Subscribed"],trial_over:["bad","✕ Trial ended"],expired:["bad","✕ Subscription ended"]}[d.state]||["ok",d.state];
    $("box").innerHTML=`<span class="st ${T[0]}">${T[1]}</span><p class="sub" style="margin:0 0 14px">${esc(d.email)}${d.days_left!=null?` · ${d.days_left} day${d.days_left==1?"":"s"} left`:""}</p>
-    <button class="go" onclick="logout()">Log out</button>
-    <p class="hint">Download Cutex and sign in with this same e-mail and password in the app.</p>`;
+    <a class="go" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="${DOWNLOAD_URL}">⬇ Download Cutex v${APP_VERSION} for Windows</a>
+    <button onclick="logout()" style="width:100%;padding:11px;border-radius:8px;border:1px solid #323743;background:var(--card2);color:var(--text);font:600 13px Roboto;cursor:pointer">Log out</button>
+    <p class="hint">Install it, then sign in with this same e-mail and password in the app.</p>`;
    return}
   clearTok()}
  $("box").innerHTML=`<div class="tabs"><button class="${mode==="login"?"on":""}" onclick="setMode('login')">Log in</button><button class="${mode==="signup"?"on":""}" onclick="setMode('signup')">Sign up</button></div>
