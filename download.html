@@ -56,9 +56,10 @@ async function load(){
  b.innerHTML=`<span class="st ok">✓ Signed in as ${esc(d.email)}</span>
   <a class="big" href="${DOWNLOAD_URL}"><span class="ic">⬇</span> Download Cutex for Windows</a>
   <div class="ver">Version ${APP_VERSION} · Windows 10/11, 64-bit</div>
-  <ol class="steps"><li>Run the installer (Windows may ask you to confirm - it's a new, unsigned app).</li>
+  <ol class="steps"><li>Your browser or Windows may warn that this file "isn't commonly downloaded" or show SmartScreen - that's normal for a small, new app with no download history yet, not a sign it's unsafe. Click <b>Keep</b> / <b>More info → Run anyway</b> to continue.</li>
    <li>Cutex opens in its own window - no need to keep anything else running.</li>
-   <li>Sign in with <b>${esc(d.email)}</b> and the password you chose.</li></ol>`;
+   <li>Sign in with <b>${esc(d.email)}</b> and the password you chose.</li></ol>
+  <p class="hint" style="text-align:left;margin-top:18px">Why the warning appears: Cutex isn't code-signed yet and hasn't been downloaded enough times to build reputation with Microsoft Defender SmartScreen. We've submitted the installer to Microsoft for a reputation review. The app only talks to your Twitch/YouTube/Kick accounts and our license server - see the <a href="privacy.html">Privacy Policy</a> for exactly what is and isn't sent anywhere.</p>`;
 }
 load();
 </script>
