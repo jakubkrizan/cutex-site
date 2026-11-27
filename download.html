@@ -42,8 +42,8 @@ h1{font-size:32px;margin:0 0 10px}h1 em{font-style:normal;color:var(--red2)}
 </div>
 <script>
 const API = "https://cutex-accounts.cutexorg.workers.dev";
-const APP_VERSION = "1.0.3";
-const DOWNLOAD_URL = "https://github.com/jakubkrizan/cutex-site/releases/download/v1.0.3/Cutex-Setup-1.0.3.exe";
+const APP_VERSION = "1.0.4";
+const DOWNLOAD_URL = "https://github.com/jakubkrizan/cutex-site/releases/download/v1.0.4/Cutex-Setup-1.0.4.exe";
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function tok(){try{return localStorage.getItem("cutex_token")||""}catch(e){return ""}}
 async function load(){
@@ -55,7 +55,7 @@ async function load(){
  if(!d.ok){b.innerHTML='<span class="st bad">Your session expired</span><p class="sub" style="margin:0 0 18px">Sign in again to get your download link.</p><a class="big" href="account.html"><span class="ic">🔑</span> Sign in</a>';return}
  b.innerHTML=`<span class="st ok">✓ Signed in as ${esc(d.email)}</span>
   <a class="big" href="${DOWNLOAD_URL}"><span class="ic">⬇</span> Download Cutex for Windows</a>
-  <div class="ver">Version ${APP_VERSION} · Windows 10/11, 64-bit</div>
+  <div class="ver">Version ${APP_VERSION} · Windows 10/11, 64-bit · about 240 MB (everything Cutex needs is inside)</div>
   <ol class="steps"><li>Your browser or Windows may warn that this file "isn't commonly downloaded" or show SmartScreen - that's normal for a small, new app with no download history yet, not a sign it's unsafe. Click <b>Keep</b> / <b>More info → Run anyway</b> to continue.</li>
    <li>Cutex opens in its own window - no need to keep anything else running.</li>
    <li>Sign in with <b>${esc(d.email)}</b> and the password you chose.</li></ol>
