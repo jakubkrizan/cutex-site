@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cutex - Download</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--card:#0d0d0f;--card2:#151518;--line:#24242a;--text:#f1f2f5;--mut:#9aa0ad;--red:#d6402a;--red2:#ec5638;--amber:#f2a23a;--ok:#7ee2a8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Roboto,system-ui,sans-serif;
+ background-image:radial-gradient(900px 500px at 75% -10%,rgba(214,64,42,.14),transparent 60%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg stroke='%23d6402a' stroke-width='2.5' stroke-linecap='round' opacity='.3'%3E%3Cpath d='M10 10l10 10M20 10l-10 10'/%3E%3Cpath d='M52 52l10 10M62 52l-10 10'/%3E%3C/g%3E%3C/svg%3E");
+ background-size:auto,84px 84px}
+a{color:var(--red2)}
+header{display:flex;align-items:center;gap:20px;height:64px;padding:0 20px;background:rgba(0,0,0,.86);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:9px;font:700 20px Roboto;white-space:nowrap;text-decoration:none;color:var(--text)}.logo b{color:var(--red2)}
+.back{margin-left:auto;color:var(--mut);text-decoration:none;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px}
+.back:hover{color:var(--text)}
+.wrap{max-width:560px;margin:70px auto;padding:0 20px;text-align:center}
+h1{font-size:32px;margin:0 0 10px}h1 em{font-style:normal;color:var(--red2)}
+.sub{color:var(--mut);margin:0 0 30px}
+.box{background:linear-gradient(180deg,var(--card),#09090b);border:1px solid var(--line);border-radius:18px;padding:36px 28px}
+.big{display:inline-flex;align-items:center;gap:12px;width:100%;justify-content:center;padding:20px;border-radius:12px;
+ border:1px solid var(--red);background:var(--red);color:#fff;font:800 18px Roboto;text-decoration:none;box-shadow:0 10px 30px rgba(214,64,42,.35)}
+.big:hover{background:var(--red2)}
+.big .ic{font-size:26px}
+.ver{color:var(--mut);font-size:13px;margin-top:14px}
+.steps{text-align:left;color:var(--mut);font-size:13.5px;margin-top:26px;padding-left:20px}
+.steps li{margin:6px 0}
+.st{display:inline-flex;gap:8px;align-items:center;font-weight:700;border-radius:99px;padding:5px 14px;font-size:13px;margin-bottom:16px}
+.st.ok{background:#173d2a;color:var(--ok)}.st.bad{background:#3d1a1c;color:#ff9a9e}
+.hint{color:var(--mut);font-size:12.5px;margin-top:20px}
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html"><svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0b0b0d"/><circle cx="32" cy="32" r="22" fill="#14070a" stroke="#d6402a" stroke-width="2.5"/><path d="M23.5 23.5L40.5 40.5M40.5 23.5L23.5 40.5" stroke="#ec5638" stroke-width="6" stroke-linecap="round"/></svg><span>Cut<b>ex</b></span></a><a class="back" href="account.html">Manage account →</a></header>
+<div class="wrap">
+ <h1>Download <em>Cutex</em></h1>
+ <p class="sub">For Windows. Install it, then sign in with the same e-mail and password you used here.</p>
+ <div class="box" id="box">loading...</div>
+ <p class="hint">Cutex runs on your own PC - nothing about your streams or clips is sent anywhere. See the <a href="privacy.html">Privacy Policy</a>.</p>
+</div>
+<script>
+const API = "https://cutex-accounts.cutexorg.workers.dev";
+const APP_VERSION = "1.0.2";
+const DOWNLOAD_URL = "https://github.com/jakubkrizan/cutex-site/releases/download/v1.0.2/Cutex-Setup-1.0.2.exe";
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function tok(){try{return localStorage.getItem("cutex_token")||""}catch(e){return ""}}
+async function load(){
+ const b=document.getElementById("box");
+ const t=tok();
+ if(!t){b.innerHTML='<span class="st bad">You need a free account first</span><p class="sub" style="margin:0 0 18px">Takes 10 seconds, no card needed.</p><a class="big" href="account.html"><span class="ic">🎁</span> Create your free account</a>';return}
+ let d={ok:false};
+ try{d=await (await fetch(API+"/me",{headers:{Authorization:"Bearer "+t}})).json()}catch(e){}
+ if(!d.ok){b.innerHTML='<span class="st bad">Your session expired</span><p class="sub" style="margin:0 0 18px">Sign in again to get your download link.</p><a class="big" href="account.html"><span class="ic">🔑</span> Sign in</a>';return}
+ b.innerHTML=`<span class="st ok">✓ Signed in as ${esc(d.email)}</span>
+  <a class="big" href="${DOWNLOAD_URL}"><span class="ic">⬇</span> Download Cutex for Windows</a>
+  <div class="ver">Version ${APP_VERSION} · Windows 10/11, 64-bit</div>
+  <ol class="steps"><li>Run the installer (Windows may ask you to confirm - it's a new, unsigned app).</li>
+   <li>Cutex opens in its own window - no need to keep anything else running.</li>
+   <li>Sign in with <b>${esc(d.email)}</b> and the password you chose.</li></ol>`;
+}
+load();
+</script>
+</body></html>

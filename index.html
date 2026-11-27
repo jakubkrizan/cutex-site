@@ -49,8 +49,18 @@ footer a{color:var(--red2);text-decoration:none;margin:0 6px}
 <header><div class="wrap">
  <span class="logo"><svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0b0b0d"/><circle cx="32" cy="32" r="22" fill="#14070a" stroke="#d6402a" stroke-width="2.5"/><path d="M23.5 23.5L40.5 40.5M40.5 23.5L23.5 40.5" stroke="#ec5638" stroke-width="6" stroke-linecap="round"/></svg><span>Cut<b>ex</b></span><small style="margin-left:7px;font-size:11px;font-weight:700;color:var(--mut);background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 7px;vertical-align:2px">v1.0.2</small></span>
  <nav><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a><a href="privacy.html">Privacy</a></nav>
- <a class="btn" href="account.html" style="margin-right:4px">Sign in</a><a class="btn acc" href="account.html">Get Cutex</a>
+ <span id="acctArea"><a class="btn" href="account.html" style="margin-right:4px">Sign in</a><a class="btn acc" href="account.html">Get Cutex</a></span>
 </div></header>
+<script>
+(function(){
+ let email="",token="";
+ try{token=localStorage.getItem("cutex_token")||"";email=localStorage.getItem("cutex_email")||""}catch(e){}
+ if(token&&email){
+  const a=document.getElementById("acctArea");
+  a.innerHTML='<a class="btn" href="account.html" style="gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:#3dd673;display:inline-block"></span>'+email.split("@")[0]+'</a><a class="btn acc" href="download.html">Download</a>';
+ }
+})();
+</script>
 
 <section class="hero wrap">
  <span class="badge">Runs on your own PC · no cloud, no account to leak</span>
@@ -89,11 +99,11 @@ footer a{color:var(--red2);text-decoration:none;margin:0 6px}
   <div class="plan"><h3>Free trial</h3><div class="price">$0 <small>/ 7 days</small></div>
    <ul><li>Everything unlocked - no feature limits</li><li>Unlimited clips &amp; renders</li><li>AI edit, hooks &amp; titles</li><li>Watermark on exports</li></ul>
    <a class="btn" href="account.html" style="width:100%;justify-content:center">Start free trial</a></div>
-  <div class="plan on"><h3>Cutex Pro</h3><div class="price">$7.99 <small>/ month</small></div>
+  <div class="plan"><h3>Cutex Pro</h3><div class="price">$7.99 <small>/ month</small></div>
    <ul><li>Everything in the trial</li><li>No watermark</li><li>YouTube auto-upload</li><li>Cancel any time</li></ul>
-   <a class="btn acc" href="account.html" style="width:100%;justify-content:center">Subscribe</a></div>
+   <button class="btn" disabled style="width:100%;justify-content:center;opacity:.6;cursor:default">Coming soon</button></div>
  </div>
- <p class="sub" style="margin-top:18px;font-size:12px">One trial per person. Checkout and billing happen on your payment provider (e.g. Lemon Squeezy), not on this page.</p>
+ <p class="sub" style="margin-top:18px;font-size:12px">Paid plans aren't open yet - start a free trial for now. One trial per person.</p>
 </section>
 
 <section id="faq" class="wrap">

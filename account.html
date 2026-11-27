@@ -27,47 +27,47 @@ input{width:100%;background:#0e0f13;color:var(--text);border:1px solid #323743;b
 input:focus{outline:none;border-color:var(--red2);box-shadow:0 0 0 3px rgba(214,64,42,.18)}
 button.go{width:100%;padding:12px;border-radius:8px;border:1px solid var(--red);background:var(--red);color:#fff;font:700 14px Roboto;cursor:pointer}
 button.go:hover{background:var(--red2)}
-#msg{min-height:20px;margin-top:10px;font-size:13.5px}
+button.plain{width:100%;padding:11px;border-radius:8px;border:1px solid #323743;background:var(--card2);color:var(--text);font:600 13px Roboto;cursor:pointer}
+a.go{display:block;text-align:center;text-decoration:none;box-sizing:border-box}
+#msg,#msg2{min-height:20px;margin-top:10px;font-size:13.5px}
 .hint{color:var(--mut);font-size:12.5px;margin-top:16px;text-align:center}
 .st{display:inline-flex;gap:8px;align-items:center;font-weight:700;border-radius:99px;padding:5px 14px;font-size:13px;margin-bottom:10px}
 .st.ok{background:#173d2a;color:var(--ok)}.st.bad{background:#3d1a1c;color:var(--bad)}
+details{margin-top:18px}summary{cursor:pointer;color:var(--mut);font-size:13px;font-weight:600}
+.row{display:flex;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
 <header><a class="logo" href="index.html"><svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#0b0b0d"/><circle cx="32" cy="32" r="22" fill="#14070a" stroke="#d6402a" stroke-width="2.5"/><path d="M23.5 23.5L40.5 40.5M40.5 23.5L23.5 40.5" stroke="#ec5638" stroke-width="6" stroke-linecap="round"/></svg><span>Cut<b>ex</b></span></a><a class="back" href="index.html">← Back to Cutex.com</a></header>
 <div class="wrap">
  <h1>Your <em>account</em></h1>
- <p class="sub">The same account works here and in the Cutex app - sign up once, free for 7 days.</p>
+ <p class="sub" id="pageSub">The same account works here and in the Cutex app - sign up once, free for 7 days.</p>
  <div class="box" id="box">loading...</div>
  <p class="hint">Your password is hashed on our server and never stored in the clear.</p>
 </div>
 <script>
-// Fill this in once you've deployed backend/worker.js (see backend/README.md), e.g.:
-// const API = "https://cutex-accounts.yourname.workers.dev";
 const API = "https://cutex-accounts.cutexorg.workers.dev";
-const APP_VERSION = "1.0.2";
-const DOWNLOAD_URL = "https://github.com/jakubkrizan/cutex-site/releases/download/v1.0.2/Cutex-Setup-1.0.2.exe";
 const $=id=>document.getElementById(id);
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 async function j(u,o){const r=await fetch(u,o);return r.json()}
 let mode="signup";
-function setMode(m){mode=m;render()}
-function tok(){return localStorage.getItem("cutex_token")||""}
+function setMode(m){mode=m;renderForm()}
+function tok(){try{return localStorage.getItem("cutex_token")||""}catch(e){return ""}}
 function setTok(t,email){try{localStorage.setItem("cutex_token",t);localStorage.setItem("cutex_email",email)}catch(e){}}
 function clearTok(){try{localStorage.removeItem("cutex_token");localStorage.removeItem("cutex_email")}catch(e){}}
-async function render(){
+
+async function load(){
  if(!API){$("box").innerHTML='<span class="st bad">Accounts aren\'t deployed yet</span><p class="hint" style="margin-top:6px">Set API in account.html once backend/worker.js is deployed - see backend/README.md.</p>';return}
  const t=tok();
  if(t){
   const d=await j(API+"/me",{headers:{Authorization:"Bearer "+t}}).catch(()=>({ok:false}));
-  if(d.ok){
-   const T={trial:["ok","🎁 Free trial"],active:["ok","✓ Subscribed"],trial_over:["bad","✕ Trial ended"],expired:["bad","✕ Subscription ended"]}[d.state]||["ok",d.state];
-   $("box").innerHTML=`<span class="st ${T[0]}">${T[1]}</span><p class="sub" style="margin:0 0 14px">${esc(d.email)}${d.days_left!=null?` · ${d.days_left} day${d.days_left==1?"":"s"} left`:""}</p>
-    <a class="go" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="${DOWNLOAD_URL}">⬇ Download Cutex v${APP_VERSION} for Windows</a>
-    <button onclick="logout()" style="width:100%;padding:11px;border-radius:8px;border:1px solid #323743;background:var(--card2);color:var(--text);font:600 13px Roboto;cursor:pointer">Log out</button>
-    <p class="hint">Install it, then sign in with this same e-mail and password in the app.</p>`;
-   return}
+  if(d.ok){renderManage(d);return}
   clearTok()}
+ renderForm()}
+
+// ---- signed out: sign up / log in form
+function renderForm(){
+ $("pageSub").textContent="The same account works here and in the Cutex app - sign up once, free for 7 days.";
  $("box").innerHTML=`<div class="tabs"><button class="${mode==="login"?"on":""}" onclick="setMode('login')">Log in</button><button class="${mode==="signup"?"on":""}" onclick="setMode('signup')">Sign up</button></div>
   <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
   <input id="pw" type="password" placeholder="password (min. 8 characters)" autocomplete="${mode==="login"?"current-password":"new-password"}">
@@ -75,11 +75,27 @@ async function render(){
   <div id="msg"></div>`}
 async function doSignup(){const m=$("msg");m.textContent="creating account...";
  const d=await j(API+"/signup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("email").value,password:$("pw").value})});
- if(d.ok){setTok(d.token,d.email);render()}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
+ if(d.ok){setTok(d.token,d.email);location.href="download.html"}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
 async function doLogin(){const m=$("msg");m.textContent="signing in...";
  const d=await j(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("email").value,password:$("pw").value})});
- if(d.ok){setTok(d.token,d.email);render()}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
-function logout(){clearTok();render()}
-render();
+ if(d.ok){setTok(d.token,d.email);location.href="download.html"}else m.innerHTML='<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
+
+// ---- signed in: manage your account (status, download link, change password, log out)
+function renderManage(d){
+ $("pageSub").textContent="Manage your Cutex account.";
+ const T={trial:["ok","🎁 Free trial"],active:["ok","✓ Subscribed"],trial_over:["bad","✕ Trial ended"],expired:["bad","✕ Subscription ended"]}[d.state]||["ok",d.state];
+ $("box").innerHTML=`<span class="st ${T[0]}">${T[1]}</span><p class="sub" style="margin:0 0 18px">${esc(d.email)}${d.days_left!=null?` · ${d.days_left} day${d.days_left==1?"":"s"} left`:""}</p>
+  <a class="go btn-like" href="download.html" style="display:block;padding:12px;border-radius:8px;border:1px solid var(--red);background:var(--red);color:#fff;font:700 14px Roboto;margin-bottom:10px">⬇ Go to Download page</a>
+  <details><summary>Change password</summary>
+   <input id="cur" type="password" placeholder="current password" autocomplete="current-password" style="margin-top:10px">
+   <input id="new1" type="password" placeholder="new password (min. 8 characters)" autocomplete="new-password">
+   <button class="plain" onclick="doChangePw()">Update password</button><div id="msg2"></div></details>
+  <div class="row"><button class="plain" onclick="logout()">Log out</button></div>`}
+async function doChangePw(){const m=$("msg2");m.textContent="updating...";
+ const d=await j(API+"/change-password",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok()},
+  body:JSON.stringify({current_password:$("cur").value,new_password:$("new1").value})});
+ m.innerHTML=d.ok?'<span style="color:var(--ok)">✓ Password updated</span>':'<span style="color:var(--bad)">'+esc(d.error)+"</span>"}
+function logout(){if(!confirm("Log out of this account?"))return;clearTok();mode="login";renderForm()}
+load();
 </script>
 </body></html>
